@@ -1,0 +1,38 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="true"
+  monitoring="autodetect" dynamicConfig="true">
+
+  <diskStore path="c:\\cache" />
+
+  <defaultCache
+            maxElementsInMemory="10000"
+            maxElementsOnDisk="10000000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="true"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU">
+            <cacheEventListenerFactory
+                class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                properties="replicateAsynchronously=false,
+                                   replicateUpdateViaCopy=false,
+                                   replicatePuts=false,
+                                   replicateUpdates=false,
+                                   replicateRemovals=true"
+            />
+     </defaultCache>       
+  <cache name="doCache" 
+        overflowToDisk="true"
+    maxEntriesLocalHeap="10000"
+    maxEntriesLocalDisk="10000000" 
+    eternal="false" 
+    diskSpoolBufferSizeMB="20"
+    timeToIdleSeconds="30000" 
+    timeToLiveSeconds="60000"
+    memoryStoreEvictionPolicy="FIFO" 
+    transactionalMode="off">
+  </cache>
+
+</ehcache>

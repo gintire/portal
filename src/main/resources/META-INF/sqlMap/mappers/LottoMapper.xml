@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- <mapper namespace="com.gintire.lotto.mapper.LottoMapper"> -->
+<!-- <mapper namespace="egovframework.lab.dataaccess.service.impl.Lotto"> -->
+<mapper namespace="Lotto">
+<cache eviction="LRU" flushInterval="60000" size="512" readOnly="true"/>
+
+  <resultMap id="LottoVO" type="com.gintire.lotto.vo.LottoVO">
+    <result property="bnusNo" column="bnusNo" javaType="Integer"/>
+    <result property="firstWinamnt" column="firstWinamnt" javaType="Float"/>
+    <result property="totSellamnt" column="totSellamnt" javaType="Float"/>
+    <result property="drwtNo1" column="drwtNo1" javaType="Integer"/>
+    <result property="drwtNo2" column="drwtNo2" javaType="Integer"/>
+    <result property="drwtNo3" column="drwtNo3" javaType="Integer"/>
+    <result property="drwtNo4" column="drwtNo4" javaType="Integer"/>
+    <result property="drwtNo5" column="drwtNo5" javaType="Integer"/>
+    <result property="drwtNo6" column="drwtNo6" javaType="Integer"/>
+    <result property="drwNoDate" column="drwNoDate" javaType="Date"/>
+    <result property="drwNo" column="drwNo" javaType="Integer"/>
+    <result property="firstPrzwnerCo" column="firstPrzwnerCo" javaType="Integer"/>
+  </resultMap>
+  
+   <resultMap id="ResponseLottoObject" type="com.gintire.lotto.vo.ResponseLottoObject">
+    <result property="iTotalRecords" column="COUNT" javaType="Integer"/>
+  </resultMap>
+  
+   <resultMap id="ResponseFreqNumsObject" type="com.gintire.lotto.vo.ResponseFreqNumsObject">
+    <result property="num" column="no" javaType="Integer"/>
+    <result property="freq" column="FREQ" javaType="Integer"/>
+  </resultMap>
+  <resultMap id="ResponseBubbleChartObject" type="com.gintire.lotto.vo.ResponseBubbleChartObject">
+    <result property="name" column="num" javaType="Integer"/>
+    <result property="size" column="FREQ" javaType="Integer"/>
+  </resultMap>
+  <resultMap id="ResponseFreqNumByYearObject" type="com.gintire.lotto.vo.ResponseFreqNumByYearObject">
+    <result property="year" column="dd" javaType="String"/>
+    <result property="num" column="no" javaType="Integer"/>
+    <result property="freq" column="FREQ" javaType="Integer"/>
+  </resultMap>
+  <!-- id의 경우에는 Mapper.java에 동일하게 사용해야된다. -->
+  <insert id="initData" parameterType="java.util.Map">
+       INSERT INTO LOTTO_HISTORY 
+                   (
+                      BNUSNO, 
+                      FIRSTWINAMNT, 
+                      TOTSELLAMNT, 
+                      DRWTNO1, 
+                      DRWTNO2, 
+                      DRWTNO3, 
+                      DRWTNO4, 
+                      DRWTNO5, 
+                      DRWTNO6, 
+                      DRWNODATE, 
+                      DRWNO, 
+                      FIRSTPRZWNERCO, 
+                      CREATE_DATE
+                   )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+        #{item.bnusNo}, 
+        #{item.firstWinamnt}, 
+        #{item.totSellamnt}, 
+        #{item.drwtNo1}, 
+        #{item.drwtNo2}, 
+        #{item.drwtNo3}, 
+        #{item.drwtNo4}, 
+        #{item.drwtNo5}, 
+        #{item.drwtNo6}, 
+        #{item.drwNoDate}, 
+        #{item.drwNo}, 
+        #{item.firstPrzwnerCo}, 
+        CURRENT_TIMESTAMP
+        )
+       </foreach>
+  </insert> 
+  <select id="selectTotNum" resultType="java.lang.Integer">
+    select COUNT(*) AS DRWNO  from lotto_history
+  </select>
+
+  <select id="selectList" resultMap="LottoVO" parameterType="LottoVO" >
+       SELECT BNUSNO, 
+                    FIRSTWINAMNT, 
+                    TOTSELLAMNT, 
+                    DRWTNO1, 
+                    DRWTNO2, 
+                    DRWTNO3, 
+                    DRWTNO4, 
+                    DRWTNO5, 
+                    DRWTNO6, 
+                    DRWNODATE, 
+                    DRWNO, 
+                    FIRSTPRZWNERCO, 
+                    CREATE_DATE
+       FROM LOTTO_HISTORY 
+  </select> 
+
+  <select id="read" resultMap="LottoVO" parameterType="LottoVO">
+       SELECT BNUSNO, 
+                    FIRSTWINAMNT, 
+                    TOTSELLAMNT, 
+                    DRWTNO1, 
+                    DRWTNO2, 
+                    DRWTNO3, 
+                    DRWTNO4, 
+                    DRWTNO5, 
+                    DRWTNO6, 
+                    DRWNODATE, 
+                    DRWNO, 
+                    FIRSTPRZWNERCO, 
+                    CREATE_DATE
+       FROM LOTTO_HISTORY 
+      WHERE DRWNO = #{drwNo}
+  </select> 
+
+   <select id="selectPageBoard" resultMap="LottoVO" parameterType="Integer">
+    SELECT BNUSNO
+                ,FIRSTWINAMNT
+                ,TOTSELLAMNT
+                , DRWTNO1
+                , DRWTNO2
+                , DRWTNO3
+                , DRWTNO4
+                , DRWTNO5
+                , DRWTNO6
+                , DRWNODATE
+                , DRWNO
+                , FIRSTPRZWNERCO
+                , CREATE_DATE
+     FROM (SELECT ROWNUM RN, B.*
+		               FROM (SELECT A.* 
+	                              FROM LOTTO_HISTORY A 
+                              ORDER BY DRWNO DESC) B)
+	WHERE RN BETWEEN (#{start} + 1) and (#{start} + #{length} + 1)
+  </select>
+  
+  <select id="selectPageBoardCount" resultMap="ResponseLottoObject" parameterType="ResponseLottoObject">
+      SELECT COUNT(1) AS COUNT 
+        FROM LOTTO_HISTORY
+  </select>
+  
+  <!-- 번호별 뽑힌 빈도수 -->
+  <select id="selectAllPeriodFreq" resultMap="ResponseFreqNumsObject" parameterType="ResponseFreqNumsObject">
+     SELECT  no NUM, COUNT(*) FREQ
+       FROM (select DRWTNO1 as no FROM LOTTO_HISTORY
+                   union all select DRWTNO2 as no FROM LOTTO_HISTORY
+								   union all select DRWTNO3 as no FROM LOTTO_HISTORY
+								   union all select DRWTNO4 as no FROM LOTTO_HISTORY
+								   union all select DRWTNO5 as no FROM LOTTO_HISTORY
+								   union all select DRWTNO6 as no FROM LOTTO_HISTORY
+								   union all select BNUSNO as no FROM LOTTO_HISTORY) AA
+    GROUP BY no
+    ORDER BY no
+  </select>
+    <!-- 모든 기간 동안 번호 뽑힌 빈도수 -->
+  <select id="selectAllPeriodFreqByYear" resultMap="ResponseFreqNumByYearObject" parameterType="ResponseFreqNumByYearObject">
+      SELECT DD, NO, COUNT(*) FREQ from
+		 (select DRWTNO1 as no, TO_CHAR(DRWNODATE,'YYYY') as DD  FROM LOTTO_HISTORY
+		  union all select DRWTNO2 as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY
+		  union all select DRWTNO3 as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY
+		  union all select DRWTNO4 as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY
+		  union all select DRWTNO5 as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY
+		  union all select DRWTNO6 as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY
+		  union all select BNUSNO as no, TO_CHAR(DRWNODATE,'YYYY') as DD FROM LOTTO_HISTORY) AA
+		  group by NO, DD
+		  order by DD, NO
+  </select>
+  <!-- 가장 많이 뽑힌 수 -->
+  <select id="selectBestNums" resultMap="ResponseFreqNumByYearObject" parameterType="ResponseFreqNumByYearObject">
+     SELECT num, freq 
+       FROM ( SELECT ROWNUM rn, AA.*
+                FROM ( SELECT * 
+                         FROM TABLE(all_nums_freq(12))
+                        ORDER BY FREQ DESC
+                      ) AA
+            )
+      WHERE RN BETWEEN 1 AND 5
+  </select>
+  <!-- 일년간 가장 적게 나온 수 -->
+  <select id="selectWorstNums" resultMap="ResponseFreqNumsObject" parameterType="ResponseFreqNumsObject">
+    SELECT num, freq 
+       FROM ( SELECT ROWNUM rn, AA.*
+                FROM ( SELECT * 
+                         FROM TABLE(all_nums_freq(12))
+                        ORDER BY FREQ
+                      ) AA
+            )
+      WHERE RN BETWEEN 1 AND 5
+  </select>
+</mapper>
