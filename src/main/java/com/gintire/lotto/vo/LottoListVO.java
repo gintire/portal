@@ -4,7 +4,7 @@ public class LottoListVO {
 	private Integer drwNo;
 	private String drwnodate;
 	private String drwtNo;
-	private Float firstwinamnt;
+	private Long firstwinamnt;
 	private Integer bnusNo;
 	private Integer drwtNo1 ;
 	private Integer drwtNo2 ;
@@ -73,10 +73,10 @@ public class LottoListVO {
 	public void setDrwtNo(String drwtNo) {
 		this.drwtNo = drwtNo;
 	}
-	public Float getFirstwinamnt() {
+	public Long getFirstwinamnt() {
 		return firstwinamnt;
 	}
-	public void setFirstwinamnt(Float firstwinamnt) {
-		this.firstwinamnt = firstwinamnt;
+	public void setFirstwinamnt(Long long1) {
+		this.firstwinamnt = long1;
 	}
 }

@@ -57,7 +57,7 @@
                       CREATE_DATE
                    )
         VALUES
-        <foreach collection="list" item="item" index="index" separator=",">
+        <foreach collection="list" item="item" index="index" separator=" ,">
         (
         #{item.bnusNo}, 
         #{item.firstWinamnt}, 
@@ -76,7 +76,7 @@
        </foreach>
   </insert> 
   <select id="selectTotNum" resultType="java.lang.Integer">
-    select COUNT(*) AS DRWNO  from lotto_history
+    select COUNT(*) AS DRWNO  from LOTTO_HISTORY
   </select>
 
   <select id="selectList" resultMap="LottoVO" parameterType="LottoVO" >

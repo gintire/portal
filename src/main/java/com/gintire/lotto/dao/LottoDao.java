@@ -1,17 +1,11 @@
 package com.gintire.lotto.dao;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-/*import org.apache.ibatis.session.SqlSession;*/
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
-import com.gintire.lotto.mapper.LottoMapper;
 import com.gintire.lotto.vo.LottoVO;
 import com.gintire.lotto.vo.ResponseFreqNumByYearObject;
 import com.gintire.lotto.vo.ResponseFreqNumsObject;
