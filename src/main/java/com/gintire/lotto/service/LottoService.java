@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,27 +17,19 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.core.MultivaluedHashMap;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.gintire.lotto.dao.LottoDao;
 import com.gintire.lotto.vo.LottoListVO;
@@ -47,7 +40,6 @@ import com.gintire.lotto.vo.ResponseFreqNumsByYearListObject;
 import com.gintire.lotto.vo.ResponseFreqNumsByYearObject;
 import com.gintire.lotto.vo.ResponseFreqNumsObject;
 import com.gintire.lotto.vo.ResponseLottoObject;
-import com.gintire.lotto.vo.ResponseMorrisDonutCharObject;
 
 import egovframework.rte.fdl.cmmn.EgovAbstractServiceImpl;
 
@@ -64,32 +56,22 @@ public class LottoService extends EgovAbstractServiceImpl {
 		 List<LottoVO> listLottoVO = new ArrayList<LottoVO>();
 	   	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	   	 Integer totNumber = 0;
-	   	 URL result;
 	     
 	   	 totNumber = lottoDao.getTotNum();
         //RestTemplate - rest를 던저서 xml로 받아오기 위한 것
-    	RestTemplate restTp = new RestTemplate();
     	if(totNumber!=0){
-    		URI uri = UriComponentsBuilder.newInstance()
-	    			.scheme("http").host("www.nlotto.co.kr").port(80).path("/common.do")
-	                .queryParam("method", "getLottoNumber")
-	                .queryParam("drwNo", totNumber+1)
-	                .build()
-	                .encode()
-	                .toUri();
-    		String resStr = restTp.getForObject(uri, String.class);
-    		/*result = new URL("http://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+totNumber+1);
-    		InputStreamReader isr = new InputStreamReader(result.openConnection().getInputStream(), "UTF-8");*/
+	        disableSslVerification();
+	        String res = getJSON("https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+totNumber+1, 3000);
     		 try {
  	        	JSONParser jsonParser = new JSONParser();
  	        	//JSON데이터를 넣어 JSON Object로 만들어준다
- 	        	JSONObject jsonObject = (JSONObject) jsonParser.parse(resStr);
+ 	        	JSONObject jsonObject = (JSONObject) jsonParser.parse(res);
  	        	//JSONObject jsonObject = (JSONObject)JSONValue.parse(isr);
  	        	
  	        	LottoVO lottoVO= new LottoVO();
  	        	lottoVO.setBnusNo( Integer.parseInt(jsonObject.get("bnusNo").toString()));
- 	        	lottoVO.setFirstWinamnt( Float.parseFloat(jsonObject.get("firstWinamnt").toString()));
- 	        	lottoVO.setTotSellamnt(Float.parseFloat(jsonObject.get("totSellamnt").toString()));
+ 	        	lottoVO.setFirstWinamnt( Long.parseLong(jsonObject.get("firstWinamnt").toString()));
+ 	        	lottoVO.setTotSellamnt(Long.parseLong(jsonObject.get("totSellamnt").toString()));
  	        	lottoVO.setDrwNo(Integer.parseInt(jsonObject.get("drwNo").toString()));
  	        	lottoVO.setDrwtNo1(Integer.parseInt(jsonObject.get("drwtNo1").toString()));
  	        	lottoVO.setDrwtNo2(Integer.parseInt(jsonObject.get("drwtNo2").toString()));
@@ -104,32 +86,19 @@ public class LottoService extends EgovAbstractServiceImpl {
  				e.printStackTrace();
  			}
      	} else {
-	    	for(int i = 1;i <=840;i++){
-		        URI uri = UriComponentsBuilder.newInstance()
-		    			.scheme("http").host("www.nlotto.co.kr").port(80).path("/common.do")
-		                .queryParam("method", "getLottoNumber")
-		                .queryParam("drwNo", i)
-		                .build()
-		                .encode()
-		                .toUri();
-		        
-		        //JSONObject json = readJsonFromUrl("https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+i);
-		        String res = getJSON("http://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+i, 3000);
-		        logger.info("URI="+uri.toString());
-		        ResponseEntity<String> reponse = restTp.exchange(uri, HttpMethod.GET, null, String.class);
-		        String resStr = restTp.getForObject(uri, String.class);
-	    		/*result = new URL("http://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+i);
-	    		InputStreamReader isr = new InputStreamReader(result.openConnection().getInputStream(), "UTF-8");*/
-	    		 try {
+	    	for(int i = 1;i<=851;i++){
+		        disableSslVerification();
+		        String res = getJSON("https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+i, 3000);
+	    		 try { 
 	 	        	JSONParser jsonParser = new JSONParser();
 	 	        	//JSON데이터를 넣어 JSON Object로 만들어준다
-	 	        	JSONObject jsonObject = (JSONObject) jsonParser.parse(resStr);
+	 	        	JSONObject jsonObject = (JSONObject) jsonParser.parse(res);
 	 	        	//JSONObject jsonObject = (JSONObject)JSONValue.parse(isr);
 		        	
 		        	LottoVO lottoVO= new LottoVO();
 		        	lottoVO.setBnusNo( Integer.parseInt(jsonObject.get("bnusNo").toString()));
-	 	        	lottoVO.setFirstWinamnt( Float.parseFloat(jsonObject.get("firstWinamnt").toString()));
-	 	        	lottoVO.setTotSellamnt(Float.parseFloat(jsonObject.get("totSellamnt").toString()));
+	 	        	lottoVO.setFirstWinamnt( Long.parseLong(jsonObject.get("firstWinamnt").toString()));
+	 	        	lottoVO.setTotSellamnt(Long.parseLong(jsonObject.get("totSellamnt").toString()));
 	 	        	lottoVO.setDrwNo(Integer.parseInt(jsonObject.get("drwNo").toString()));
 	 	        	lottoVO.setDrwtNo1(Integer.parseInt(jsonObject.get("drwtNo1").toString()));
 	 	        	lottoVO.setDrwtNo2(Integer.parseInt(jsonObject.get("drwtNo2").toString()));
@@ -139,6 +108,7 @@ public class LottoService extends EgovAbstractServiceImpl {
 	 	        	lottoVO.setDrwtNo6(Integer.parseInt(jsonObject.get("drwtNo6").toString()));
 	 				lottoVO.setDrwNoDate(sdf.parse(jsonObject.get("drwNoDate").toString()));
 	 	        	lottoVO.setFirstPrzwnerCo(Integer.parseInt(jsonObject.get("firstPrzwnerCo").toString()));
+	 	        	System.out.println(lottoVO.toString());
 		        	listLottoVO.add(lottoVO);
 		        }catch (java.text.ParseException e) {
 					e.printStackTrace();
@@ -405,7 +375,7 @@ public class LottoService extends EgovAbstractServiceImpl {
 	 public static String getJSON(String url, int timeout) throws IOException {
 
 		    URL u = new URL(url);
-		    HttpURLConnection c = (HttpURLConnection) u.openConnection();
+		    HttpsURLConnection c = (HttpsURLConnection) u.openConnection();
 		    c.setRequestMethod("GET");
 		    c.setRequestProperty("Content-length", "0");
 		    c.setUseCaches(false);
@@ -426,8 +396,45 @@ public class LottoService extends EgovAbstractServiceImpl {
 		            }
 		            br.close();
 		            return sb.toString();
+		         default:
+		        	 logger.error("Wrong request");
 		    }
 
 		    return null;
 		}
+	 private static void disableSslVerification() {
+	        try
+	        {
+	            // Create a trust manager that does not validate certificate chains
+	            TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+	                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+	                    return null;
+	                }
+	                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+	                }
+	                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+	                }
+	            }
+	            };
+	 
+	            // Install the all-trusting trust manager
+	            SSLContext sc = SSLContext.getInstance("SSL");
+	            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+	            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+	 
+	            // Create all-trusting host name verifier
+	            HostnameVerifier allHostsValid = new HostnameVerifier() {
+	                public boolean verify(String hostname, SSLSession session) {
+	                    return true;
+	                }
+	            };
+	 
+	            // Install the all-trusting host verifier
+	            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+	        } catch (NoSuchAlgorithmException e) {
+	            e.printStackTrace();
+	        } catch (KeyManagementException e) {
+	            e.printStackTrace();
+	        }
+	    }
 }

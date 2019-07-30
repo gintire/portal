@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class LottoVO {
 	private Integer bnusNo;
-	private Float firstWinamnt ;
-	private Float totSellamnt;
+	private Long firstWinamnt ;
+	private Long totSellamnt;
 	private Integer drwtNo1 ;
 	private Integer drwtNo2 ;
 	private Integer drwtNo3 ;
@@ -21,16 +21,16 @@ public class LottoVO {
 	public void setBnusNo(Integer bnusNo) {
 		this.bnusNo = bnusNo;
 	}
-	public Float getFirstWinamnt() {
+	public Long getFirstWinamnt() {
 		return firstWinamnt;
 	}
-	public void setFirstWinamnt(Float firstWinamnt) {
-		this.firstWinamnt = firstWinamnt;
+	public void setFirstWinamnt(long l) {
+		this.firstWinamnt = l;
 	}
-	public Float getTotSellamnt() {
+	public Long getTotSellamnt() {
 		return totSellamnt;
 	}
-	public void setTotSellamnt(Float totSellamnt) {
+	public void setTotSellamnt(Long totSellamnt) {
 		this.totSellamnt = totSellamnt;
 	}
 	public Integer getDrwtNo1() {
@@ -87,4 +87,12 @@ public class LottoVO {
 	public void setFirstPrzwnerCo(Integer firstPrzwnerCo) {
 		this.firstPrzwnerCo = firstPrzwnerCo;
 	}
+	@Override
+	public String toString() {
+		return "LottoVO [bnusNo=" + bnusNo + ", firstWinamnt=" + firstWinamnt + ", totSellamnt=" + totSellamnt
+				+ ", drwtNo1=" + drwtNo1 + ", drwtNo2=" + drwtNo2 + ", drwtNo3=" + drwtNo3 + ", drwtNo4=" + drwtNo4
+				+ ", drwtNo5=" + drwtNo5 + ", drwtNo6=" + drwtNo6 + ", drwNoDate=" + drwNoDate + ", drwNo=" + drwNo
+				+ ", firstPrzwnerCo=" + firstPrzwnerCo + "]";
+	}
+	
 }

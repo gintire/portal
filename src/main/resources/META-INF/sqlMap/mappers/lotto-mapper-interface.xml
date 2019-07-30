@@ -77,7 +77,7 @@
        select * from dual
   </insert> 
   <select id="selectTotNum" resultType="java.lang.Integer">
-    select COUNT(*) AS DRWNO  from lotto_history
+    select COUNT(*) AS DRWNO  from LOTTO_HISTORY
   </select>
 
   <select id="selectList" resultMap="LottoVO" parameterType="LottoVO" >
