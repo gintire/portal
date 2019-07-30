@@ -48,6 +48,12 @@
 		<project.build.finalName>lotto</project.build.finalName>
 	</properties>
 
+	<settings>
+		<pluginGroups>
+			<pluginGroup>com.spotify</pluginGroup>
+		</pluginGroups>
+	</settings>
+
 	<repositories>
 		<repository>
 			<id>mvn2</id>
@@ -376,7 +382,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<repository>gintire.com/lotto</repository>
+					<repository>docker.io/jin3670/gintire</repository>
 					<tag>${project.version}</tag>
 					<buildArgs>
 						<JAR_FILE>${project.build.finalName}.war</JAR_FILE>
