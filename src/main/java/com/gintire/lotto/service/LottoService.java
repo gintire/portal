@@ -86,7 +86,7 @@ public class LottoService extends EgovAbstractServiceImpl {
  				e.printStackTrace();
  			}
      	} else {
-	    	for(int i = 1;i<=851;i++){
+	    	for(int i = 1;i<=869;i++){
 		        disableSslVerification();
 		        String res = getJSON("https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo="+i, 3000);
 	    		 try { 
