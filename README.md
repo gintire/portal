@@ -38,5 +38,4 @@
    $ docker build --tag=gintire-custom .
    $ docker run -it --rm jin3670/gintire-custom
    ```
-   5. 
 After few seconds, open `http://<host>:8080` to see the result.
