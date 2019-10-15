@@ -25,7 +25,6 @@
     Globals.Url=jdbc:mysql://<localhost>:3306/lotto
     Globals.username=<id>
     Globals.password=<password>
-
     ```
 
   2. In some environments, it may make more sense to prepare a custom image containing your configuration. A `Dockerfile` to achieve this may be as simple as:
