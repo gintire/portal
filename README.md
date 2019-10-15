@@ -20,7 +20,7 @@
 #### Customized Image
 
   1. Create a jdbc.property file on the host.
-    ```properties
+    ``` properties
     Globals.DriverClassName=com.mysql.jdbc.Driver
     Globals.Url=jdbc:mysql://<localhost>:3306/lotto
     Globals.username=<id>
@@ -28,7 +28,7 @@
     ```
 
   2. In some environments, it may make more sense to prepare a custom image containing your configuration. A `Dockerfile` to achieve this may be as simple as:
-    ```sh
+    ``` sh
     FROM jin3670/gintire:1.0.1
     MAINTAINER jinwook.im <jin3670@gmail.com>
     COPY jdbc.properties /usr/local/tomcat/webapps/
